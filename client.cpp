@@ -34,8 +34,6 @@ int written(int fd, const void *buf, size_t n) {
     return total_sent;
 }
 
-int readlineSlow(); 
-
 int main(int argc, char* argv[]) {
     string ip = argv[1];
     string port = argv[2]; 
