@@ -34,7 +34,36 @@ int written(int fd, const void *buf, size_t n) {
     return total_sent;
 }
 
+int readline(int fd, void *buf, size_t maxlen){
+    char *ptr = (char*)(buf);
+    size_t total_read = 0;
+    while (total_read<maxlen-1) {
+        char c;
+        int n = read(fd, &c, 1); // 一次只讀 1 byte
+        if (n == 1) {//successfully read
+            ptr[total_read] = c ; 
+            total_read +=1 ;            
+            if(c=='\n'){
+                ptr[total_read]= '\0' ;
+                return total_read;
+            } 
+        } else if (n == 0) {
+            ptr[total_read] = '\0'; 
+            return total_read ;  
+        } else { 
+            if(errno!=EINTR){
+                return -1 ;
+            }
+        }
+    }
+    ptr[total_read] = '\0'; 
+    return total_read;
+}
+
 int main(int argc, char* argv[]) {
+    if(argc!=3){
+        cout<<"Usage Message"<<endl; 
+    }
     string ip = argv[1];
     string port = argv[2]; 
     //creat socket
@@ -59,8 +88,9 @@ int main(int argc, char* argv[]) {
     char buffer[1024]; //IO buffer 
     while(fgets(buffer, sizeof(buffer), stdin)!=NULL){
         written(sockId, buffer, strlen(buffer));
-        int n = read(sockId, buffer, sizeof(buffer));
+        int n = readline(sockId,buffer,1024); 
         fwrite(buffer, 1, n, stdout);
+    
     }
     cout<<"Disconnected"<<endl; 
     close(sockId);
