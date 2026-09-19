@@ -8,3 +8,4 @@ server
 *.py
 #json
 *.json
+*.txt
