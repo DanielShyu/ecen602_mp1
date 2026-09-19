@@ -6,7 +6,7 @@
 #include <unistd.h>
 using namespace std; 
 bool TEST = false; 
-int MAXLEN = 1024; 
+const int MAXLEN = 5; 
 /*
 usage: safely write n characters in the buffer to the socket
 writen(fd,buf,n)
@@ -63,6 +63,7 @@ int readline(int fd, void *buf, size_t maxlen){
 int main(int argc, char* argv[]) {
     if(argc!=3){
         cout<<"Usage Message"<<endl; 
+        return 0; 
     }
     string ip = argv[1];
     string port = argv[2]; 
@@ -85,12 +86,22 @@ int main(int argc, char* argv[]) {
         return 0 ;
     } //connection fail 
     //connection success
-    char buffer[1024]; //IO buffer 
+    char buffer[MAXLEN]; //IO buffer 
     while(fgets(buffer, sizeof(buffer), stdin)!=NULL){
-        written(sockId, buffer, strlen(buffer));
-        int n = readline(sockId,buffer,1024); 
+        int sent = written(sockId, buffer, strlen(buffer));
+        cout<<"char sent:"<<sent<<endl ; 
+        int n = readline(sockId,buffer,MAXLEN); 
+        if(n==0){
+            cout<<"connection end"<<endl;
+            close(sockId);
+            return 0 ; 
+        }
+        if(n==-1){
+            cerr<< strerror(errno)<<endl ; 
+            close(sockId);
+            return -1 ; 
+        }
         fwrite(buffer, 1, n, stdout);
-    
     }
     cout<<"Disconnected"<<endl; 
     close(sockId);

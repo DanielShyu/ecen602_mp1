@@ -5,7 +5,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <errno.h>
-
+const int MAXLEN = 5 ; 
 // Function prototypes
 ssize_t writen(int fd, const void *vptr, size_t n);
 ssize_t readline(int fd, void *vptr, size_t maxlen);
@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
     }
 
     //listen for incoming connections
-    if (listen(listenfd, 1024) < 0) {
+    if (listen(listenfd, MAXLEN) < 0) {
         perror("listen");
         close(listenfd);
         return 1;
@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
             close(listenfd);
             //use readline and writen functions to read from and write to the socket
             ssize_t n; // number of bytes read
-            char buffer[1024];
+            char buffer[MAXLEN];
             // Read lines from the client and echo them back
             while ((n = readline(connfd, buffer, sizeof(buffer))) > 0) {
                 writen(connfd, buffer, n);
