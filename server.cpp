@@ -109,6 +109,8 @@ int main(int argc, char **argv) {
         if (connfd < 0) {
             perror("accept");
             continue;
+        }else{
+            printf("Accepted connection\n");
         }
 
         //fork a child process to handle the connection
@@ -130,6 +132,7 @@ int main(int argc, char **argv) {
                 writen(connfd, buffer, n);
             }
             close(connfd); // Close the connected socket in the child process
+            printf("Connection handled and closed\n");
             exit(0);// Exit the child process after handling the connection
         }
         
