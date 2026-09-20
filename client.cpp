@@ -38,11 +38,11 @@ int readline(int fd, void *buf, size_t maxlen){
     size_t total_read = 0;
     while (total_read<maxlen-1) {
         char c;
-        int n = read(fd, &c, 1); // 一次只讀 1 byte
+        int n = read(fd, &c, 1); // 1 byte a time
         if (n == 1) {//successfully read
-            ptr[total_read] = c ; 
-            total_read +=1 ;            
-            if(c=='\n'){
+            ptr[total_read] = c ; //store the read character in buffer
+            total_read +=1 ;    //update counter
+            if(c=='\n'){ //if \n is read, end this 
                 ptr[total_read]= '\0' ;
                 return total_read;
             } 
@@ -96,13 +96,19 @@ int main(int argc, char* argv[]) {
             }
         }
         int sent = written(sockId, buffer, strlen(buffer));
+        //test case 4, close after sent
+        
+        //cout<<"Disconnected"<<endl; 
+        //close(sockId);
+        //return 0;
+        
         //if sent 
         if(sent==-1){
             cerr<< strerror(errno)<<endl; 
             close(sockId);
             return -1;
         }
-        //cout<<"char sent:"<<sent<<endl ; 
+        
         int n = readline(sockId,buffer,MAXLEN); 
         if(n==0){
             cout<<"connection end"<<endl;
