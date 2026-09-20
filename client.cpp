@@ -21,7 +21,6 @@ int written(int fd, const void *buf, size_t n) {
         int sent = write(fd, ptr + total_sent, n - total_sent);
         // error handle
         if(sent==-1){
-            cerr<< strerror(errno) ; 
             if(errno!=EINTR){
                 return -1; 
             }
@@ -88,8 +87,22 @@ int main(int argc, char* argv[]) {
     //connection success
     char buffer[MAXLEN]; //IO buffer 
     while(fgets(buffer, sizeof(buffer), stdin)!=NULL){
+        size_t len = strlen(buffer);
+        //clear io buffer that exceed maximum length
+        if (len > 0 && buffer[len-1] != '\n') {
+            int ch;
+            while ((ch = getchar()) != '\n' && ch != EOF) {
+            // do nothing, simply flusing the standard io
+            }
+        }
         int sent = written(sockId, buffer, strlen(buffer));
-        cout<<"char sent:"<<sent<<endl ; 
+        //if sent 
+        if(sent==-1){
+            cerr<< strerror(errno)<<endl; 
+            close(sockId);
+            return -1;
+        }
+        //cout<<"char sent:"<<sent<<endl ; 
         int n = readline(sockId,buffer,MAXLEN); 
         if(n==0){
             cout<<"connection end"<<endl;
@@ -102,6 +115,9 @@ int main(int argc, char* argv[]) {
             return -1 ; 
         }
         fwrite(buffer, 1, n, stdout);
+        if (buffer[n-1] != '\n') {
+            cout << endl;
+        }
     }
     cout<<"Disconnected"<<endl; 
     close(sockId);

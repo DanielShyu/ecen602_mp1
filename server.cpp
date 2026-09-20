@@ -59,6 +59,10 @@ ssize_t readline(int fd, void *vptr, size_t maxlen){
         }
     }
     *ptr = 0; // null-terminate the string
+    
+    if (n == (ssize_t)maxlen) {
+        return n - 1; // buffer full, but no '\n' us found，thus minus one
+    }
     return n ; // return the number of bytes read
 }
 
