@@ -21,8 +21,10 @@ ssize_t writen(int fd, const void *vptr, size_t n){
         if(nwritten < 0){
             if(errno == EINTR)
                 nwritten = 0; // call write() again
-            else
-                return -1; // error
+            else{
+                printf("Error writing to socket: %s\n", strerror(errno));
+                return -1;
+            }
         } else if (nwritten == 0) {
             break;
         }
@@ -52,7 +54,8 @@ ssize_t readline(int fd, void *vptr, size_t maxlen){
             return n - 1;// End of file, n - 1 bytes were read
         }
         else{
-            return -1; // error
+            printf("Error reading from socket: %s\n", strerror(errno));
+            return -1;
         }
     }
     *ptr = 0; // null-terminate the string
@@ -128,8 +131,18 @@ int main(int argc, char **argv) {
             ssize_t n; // number of bytes read
             char buffer[MAXLEN];
             // Read lines from the client and echo them back
-            while ((n = readline(connfd, buffer, sizeof(buffer))) > 0) {
-                writen(connfd, buffer, n);
+            while (1) {
+                n = readline(connfd, buffer, sizeof(buffer));
+
+                if (n < 0) {
+                    break;
+                }
+                if (n == 0) {
+                    break;
+                }
+                if (writen(connfd, buffer, n) < 0) {
+                    break;
+                }
             }
             close(connfd); // Close the connected socket in the child process
             printf("Connection handled and closed\n");
